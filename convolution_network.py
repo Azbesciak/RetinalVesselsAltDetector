@@ -1,14 +1,11 @@
 from __future__ import division, print_function, absolute_import
 
 import datetime
-import os
 import random as rand
 
-import cv2
 import numpy as np
 import tensorflow as tf
 import tflearn
-from cv2.cv2 import imread
 from numpy import array
 from scipy._lib.six import xrange
 from tflearn.data_preprocessing import ImagePreprocessing
@@ -21,15 +18,16 @@ from utils import Load, printProgressBar, LEARNING_PATH
 
 N_EPOCH = 10
 
-MODEL_OUTPUT = "result"
+MODEL_OUTPUT = "model"
 
 KEEP_PROB = 0.6
 CONNECTIONS = 1024
 CLASSIFIER_FILE_TFL = "eye-veins-classifier.tfl"
 
 MASK_SIZE = 25
-k = 5
-PHOTO_SAMPLES = 45000
+k = 10
+PHOTO_SAMPLES = 30000
+CHUNK_STEP = 5
 
 
 def chunkify(lst, n):
@@ -107,7 +105,7 @@ class Network:
     def __init__(self):
         self.model = None
 
-    def create_model(self, name="InputData", ckpt=None):
+    def create_model(self, name="InputData"):
         img_prep = ImagePreprocessing()
         img_prep.add_featurewise_zero_center()
         img_prep.add_featurewise_stdnorm()
@@ -125,7 +123,7 @@ class Network:
         network = regression(network, optimizer='adam',
                              loss='categorical_crossentropy',
                              learning_rate=0.001)
-        self.model = tflearn.DNN(network, tensorboard_verbose=0, checkpoint_path=ckpt)
+        self.model = tflearn.DNN(network, tensorboard_verbose=0)
 
     def train(self, X, Y, Xtest, Ytest):
         self.model.fit(X, Y, n_epoch=N_EPOCH, shuffle=True, validation_set=(Xtest, Ytest),
@@ -213,7 +211,7 @@ if __name__ == '__main__':
     timeStamp = datetime.datetime.now().time()
 
     averageAcc = 0
-    for i in range(0, 0):
+    for i in range(0, k):
         averageAcc += run_session(splittedSamples, splittedMasks, i)
     averageAcc = averageAcc / k
     print(averageAcc)

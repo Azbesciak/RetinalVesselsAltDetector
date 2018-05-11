@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+from convolution_network import LearnData
+from utils import Load, TEST_PATH
 
 
 def extract_green(img):
@@ -61,3 +63,11 @@ def open_and_close(img, radius):
                           cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (radius, radius)), iterations=1)
     return cv2.morphologyEx(o1, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (radius, radius)),
                             iterations=1)
+
+
+if __name__ == '__main__':
+    data = LearnData(TEST_PATH)
+    data.load_all()
+    for img in data.original.images:
+        res = process(img.image)
+        Load.save(TEST_PATH + "/imageproc/" + img.get_file_name(), res)

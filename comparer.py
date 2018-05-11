@@ -3,7 +3,7 @@ from __future__ import division, print_function, absolute_import
 import codecs
 
 from convolution_network import *
-from utils import TEST_PATH
+from utils import TEST_PATH, NETWORK_RESULT_DIR, IMG_PROC_RESULT_DIR
 
 
 def get_stat(label, learn_data: LearnData, to_compare: Load):
@@ -60,9 +60,9 @@ if __name__ == '__main__':
     learn_data = LearnData(TEST_PATH)
     learn_data.load_all()
 
-    neural_res = Load("network", TEST_PATH)
+    neural_res = Load(NETWORK_RESULT_DIR, TEST_PATH)
     neural_res.load_all()
-    image_proc = Load("imageproc", TEST_PATH)
+    image_proc = Load(IMG_PROC_RESULT_DIR, TEST_PATH)
     image_proc.load_all()
-    get_stat("network", learn_data, neural_res)
-    get_stat("imageproc", learn_data, image_proc)
+    get_stat(NETWORK_RESULT_DIR, learn_data, neural_res)
+    get_stat(IMG_PROC_RESULT_DIR, learn_data, image_proc)

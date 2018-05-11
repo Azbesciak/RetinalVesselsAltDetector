@@ -6,9 +6,11 @@ import numpy as np
 
 PADDING = 25 // 2 + 1
 
-MAX_IMG_WIDTH = 666
+MAX_IMG_WIDTH = 600
 TEST_PATH = "test"
 LEARNING_PATH = "all"
+NETWORK_RESULT_DIR = "network"
+IMG_PROC_RESULT_DIR = "imageproc"
 
 
 # https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console
