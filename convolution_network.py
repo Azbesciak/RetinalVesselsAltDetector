@@ -27,7 +27,8 @@ CLASSIFIER_FILE_TFL = "eye-veins-classifier.tfl"
 MASK_SIZE = 25
 k = 10
 PHOTO_SAMPLES = 30000
-CHUNK_STEP = 5
+
+MARK_ACCEPT_PROP = 0.95
 
 
 def chunkify(lst, n):
@@ -138,7 +139,7 @@ class Network:
     def save(self, file_name):
         self.model.save(file_name)
 
-    def mark(self, img, mask=None):
+    def mark(self, img, mask, img_name):
         reconstructed = np.zeros((img.shape[0], img.shape[1]))
         if img.max() > 1:
             img = img / 255
@@ -150,8 +151,8 @@ class Network:
                       for y in range(0, img.shape[1] - MASK_SIZE - 1)
                       ]
         total = len(points)
+        printProgressBar(0, total, prefix='Progress (' + img_name + '):', suffix='Complete', length=100)
         for i, p in enumerate(points):
-            printProgressBar(i, total, prefix='Progress:', suffix='Complete', length=100)
             x, y = p
             centerX = x + int(MASK_SIZE / 2)
             centerY = y + int(MASK_SIZE / 2)
@@ -160,11 +161,11 @@ class Network:
             prediction = self.predict(sample)
             result = prediction.T[0]
 
-            if result > KEEP_PROB:
+            if result > MARK_ACCEPT_PROP:
                 reconstructed[centerX][centerY] = 255
             else:
                 reconstructed[centerX][centerY] = 0
-
+            printProgressBar(i+1, total, prefix='Progress (' + img_name + '):', suffix='Complete', length=100)
         return array(reconstructed)
 
 

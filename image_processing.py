@@ -8,13 +8,18 @@ def extract_green(img):
     return img[:, :, 1]
 
 
-def process(img):
+def process(img, mask):
     if len(img.shape) == 3:
         img = extract_green(img)
-    f5 = show_vessels(img)
-    vessels_without_noise = remove_noise_from_vessels(f5)
+    with_vessels = show_vessels(img)
+    in_scope = remove_all_out_of_the_scope(with_vessels, mask)
+    vessels_without_noise = remove_noise_from_vessels(in_scope)
     blood_vessels = get_long_vessels(vessels_without_noise, img)
     return blood_vessels
+
+
+def remove_all_out_of_the_scope(img, mask):
+    return cv2.bitwise_and(img, mask, mask=mask)
 
 
 def get_long_vessels(fundus_eroded, green_fundus):
@@ -68,6 +73,6 @@ def open_and_close(img, radius):
 if __name__ == '__main__':
     data = LearnData(TEST_PATH)
     data.load_all()
-    for img in data.original.images:
-        res = process(img.image)
-        Load.save(TEST_PATH + "/imageproc/" + img.get_file_name(), res)
+    for img, mask in zip(data.original.images, data.masks.images):
+        res = process(img.image, mask.image)
+        Load.save(TEST_PATH + "/imgproc/" + img.get_file_name(), res)

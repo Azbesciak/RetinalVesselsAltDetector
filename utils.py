@@ -10,7 +10,11 @@ MAX_IMG_WIDTH = 600
 TEST_PATH = "test"
 LEARNING_PATH = "all"
 NETWORK_RESULT_DIR = "network"
-IMG_PROC_RESULT_DIR = "imageproc"
+IMG_PROC_RESULT_DIR = "imgproc"
+
+OKBLUE = '\033[94m'
+OKGREEN = '\033[92m'
+ENDC = '\033[0m'
 
 
 # https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console
@@ -26,10 +30,14 @@ def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=
         length      - Optional  : character length of bar (Int)
         fill        - Optional  : bar fill character (Str)
     """
+    iteration_step = int(total / 1000)
+    if iteration % iteration_step != 0:
+        return
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
     bar = fill * filledLength + '-' * (length - filledLength)
-    print('\r%s |%s| %s%% %s\x1b[3A' % (prefix, bar, percent, suffix), end="", flush=True)
+    print(('\r' + OKBLUE + '%s' + ENDC + ' |' + OKGREEN + '%s' + ENDC + '| %s%% %s\x1b[3A') % (
+        prefix, bar, percent, suffix), end="", flush=True)
     # Print New Line on Complete
     if iteration == total:
         print(" ")

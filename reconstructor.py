@@ -13,5 +13,5 @@ if __name__ == '__main__':
     data = LearnData(TEST_PATH)
     data.load_all()
     for mask, org in zip(data.masks.images, data.original.images):
-        reconstructed = network.mark(org.image, mask.image)
+        reconstructed = network.mark(org.image, mask.image, org.get_file_name())
         Load.save(TEST_PATH + "/" + NETWORK_RESULT_DIR + "/" + org.get_file_name(), reconstructed)

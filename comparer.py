@@ -5,6 +5,8 @@ import codecs
 from convolution_network import *
 from utils import TEST_PATH, NETWORK_RESULT_DIR, IMG_PROC_RESULT_DIR
 
+VALIDATION_README_MD = TEST_PATH + "/validation/README.MD"
+
 
 def get_stat(label, learn_data: LearnData, to_compare: Load):
     TP = 0
@@ -39,21 +41,34 @@ def get_stat(label, learn_data: LearnData, to_compare: Load):
 
     P = TP + FN
     N = TN + FP
+    RATIO = P/N
     ACC = (TP + TN) / (P + N)
     ERR = (FP + FN) / (P + N)
-    TPR = TP / (TP + FN)  # czułość
-    TNP = TN / (TN + FP)  # specyficzność
-    PPV = TP / (TP + FP)  # precyzja przewidywania pozytywnego
-    NPV = TN / (TN + FN)  # precyzja przewidywania negatywnego
-    MSE = (TP + FN) / total_points_num  # średni błąd
-    with codecs.open(TEST_PATH + "/validation/" + label + ".txt", "w", "utf-8-sig") as f:
-        f.write("Dokładność: " + str(ACC) + "\n")
-        f.write("Poziom błędu: " + str(ERR) + "\n")
-        f.write("Czułość: " + str(TPR) + "\n")
-        f.write("Specyficzność: " + str(TNP) + "\n")
-        f.write("PPP: " + str(PPV) + "\n")
-        f.write("PPN: " + str(NPV) + "\n")
-        f.write("MSE:" + str(MSE) + "\n")
+    TPR = TP / (TP + FN)
+    TNP = TN / (TN + FP)
+    PPV = TP / (TP + FP)
+    NPV = TN / (TN + FN)
+    MSE = (TP + FN) / total_points_num
+
+    N_ACC = (TP + TN*RATIO) / (P + N*RATIO)
+    N_ERR = (FP + FN*RATIO) / (P + N*RATIO)
+    N_TPR = TP / (TP + FN*RATIO)
+    N_TNP = TN / (TN + FP*RATIO)
+    with codecs.open(VALIDATION_README_MD, "a", "utf-8-sig") as f:
+        f.write("## " + label + "\n")
+        f.write("Accuracy: " + str(ACC) + "\n")
+        f.write("Error level: " + str(ERR) + "\n")
+        f.write("Sensitivity: " + str(TPR) + "\n")
+        f.write("Specificity: " + str(TNP) + "\n")
+        f.write("Positive Predictive Value: " + str(PPV) + "\n")
+        f.write("Negative Predictive Value: " + str(NPV) + "\n")
+        f.write("Medium Square Error:" + str(MSE) + "\n")
+        f.write("Positive to negative value in original :" + str(RATIO) + "\n")
+        f.write("Normalized results with ratio :" + str(RATIO) + "\n")
+        f.write("Accuracy: " + str(N_ACC) + "\n")
+        f.write("Error level: " + str(N_ERR) + "\n")
+        f.write("Sensitivity: " + str(N_TPR) + "\n")
+        f.write("Specificity: " + str(N_TNP) + "\n")
 
 
 if __name__ == '__main__':
@@ -64,5 +79,7 @@ if __name__ == '__main__':
     neural_res.load_all()
     image_proc = Load(IMG_PROC_RESULT_DIR, TEST_PATH)
     image_proc.load_all()
+    with open(VALIDATION_README_MD, 'w') as f:
+        f.write("# Results comparision")
     get_stat(NETWORK_RESULT_DIR, learn_data, neural_res)
     get_stat(IMG_PROC_RESULT_DIR, learn_data, image_proc)
