@@ -1,11 +1,11 @@
 # Results comparision
-# Meaning:\
-# Green - correct\
-# Red - incorrect\
-# Blue - ???\
-# Violet - both close to each other... green + red\
-# Light - everything else but not vessel\
-# Dark - vessel\
+> Meaning:\
+> Green - correct\
+> Red - incorrect\
+> Blue - ???\
+> Violet - both close to each other... green + red\
+> Light - everything else but not vessel\
+> Dark - vessel\
 ﻿
 ## network
 | Measure | Value |
