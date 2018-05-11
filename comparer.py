@@ -59,7 +59,7 @@ def get_stat(label, learn_data : LearnData, to_compare : Load):
     N_TPR = TP / (TP + FN*RATIO)
     N_TNP = TN / (TN + FP*RATIO)
     with codecs.open(VALIDATION_README_MD, "a", "utf-8-sig") as f:
-        f.write("## " + label + "\n")
+        f.write("\n## " + label + "\n")
         f.write("| Measure | Value |\n")
         f.write("| --- | --- |\n")
         f.write("| Accuracy |" + str(ACC) + "|\n")
@@ -93,6 +93,6 @@ if __name__ == '__main__':
         f.write("> Blue - ???\\\n")
         f.write("> Violet - both close to each other... green + red\\\n")
         f.write("> Light - everything else but not vessel\\\n")
-        f.write("> Dark - vessel\\\n\n")
+        f.write("> Dark - vessel\\\n")
     get_stat(NETWORK_RESULT_DIR, learn_data, neural_res)
     get_stat(IMG_PROC_RESULT_DIR, learn_data, image_proc)
