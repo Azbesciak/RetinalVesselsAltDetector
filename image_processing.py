@@ -7,10 +7,11 @@ def extract_green(img):
 
 
 def process(img):
-    green_fundus = extract_green(img)
-    f5 = show_vessels(green_fundus)
+    if len(img.shape) == 3:
+        img = extract_green(img)
+    f5 = show_vessels(img)
     vessels_without_noise = remove_noise_from_vessels(f5)
-    blood_vessels = get_long_vessels(vessels_without_noise, green_fundus)
+    blood_vessels = get_long_vessels(vessels_without_noise, img)
     return blood_vessels
 
 

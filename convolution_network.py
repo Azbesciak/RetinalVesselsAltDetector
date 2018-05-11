@@ -16,13 +16,15 @@ from tflearn.data_utils import shuffle
 from tflearn.layers.conv import conv_2d, max_pool_2d
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
-from utils import printProgressBar
+
+from utils import Load, printProgressBar, LEARNING_PATH
+
+MODEL_OUTPUT = "result"
 
 KEEP_PROB = 0.5
 CONNECTIONS = 512
 CLASSIFIER_FILE_TFL = "eye-veins-classifier.tfl"
 
-MAX_IMG_HEIGHT = 600
 MASK_SIZE = 25
 k = 10
 PHOTO_SAMPLES = 10000
@@ -32,54 +34,27 @@ def chunkify(lst, n):
     return [lst[i::n] for i in xrange(n)]
 
 
-class Load:
-    root_dir = "all/"
-
-    def __init__(self, path):
-        self.data = []
-        self.path = path
-
-    def threshold(self, value=10):
-        for mask in self.data:
-            mask[mask > value] = 255
-            mask[mask <= value] = 0
-
-    @staticmethod
-    def load_image(file_name):
-        img = imread(file_name)[:, :, 1]
-        current_height = img.shape[1]
-        if current_height > MAX_IMG_HEIGHT:
-            max_width = int(MAX_IMG_HEIGHT / current_height * img.shape[0])
-            img = cv2.resize(img, dsize=(MAX_IMG_HEIGHT, max_width), interpolation=cv2.INTER_CUBIC)
-        return img.astype(int)
-
-    def load_all(self):
-        self.data = [Load.load_image(Load.root_dir + self.path + "/" + p)
-                     for p in os.listdir(Load.root_dir + self.path)]
-
-
 class LearnData:
-    def __init__(self) -> None:
-        self.images = Load("images")
-        self.masks = Load("mask")
-        self.manual = Load("manual1")
+    def __init__(self, root_dir) -> None:
+        self.original = Load("images", root_dir)
+        self.masks = Load("mask", root_dir)
+        self.manual = Load("manual1", root_dir)
 
     def load_all(self):
-        for l in [self.images, self.manual, self.masks]:
+        for l in [self.original, self.manual, self.masks]:
             l.load_all()
         self.masks.threshold()
         self.manual.threshold()
 
-    def zip(self):
-        return zip(self.images.data, self.manual.data, self.masks.data)
-
+    def zip_data(self):
+        return zip(self.original.get_data(), self.manual.get_data(), self.masks.get_data())
 
     @staticmethod
     def get_possible_points(mask):
         def to_corner(v):
             return v - MASK_SIZE // 2 - 1
+
         indexes = np.where(mask > 0)
-        indexes = indexes
         all_x, all_y = indexes
         indexes = [[to_corner(all_x[i]), to_corner(all_y[i])] for i in range(0, len(all_x))]
         max_x = mask.shape[0] - MASK_SIZE - 1
@@ -93,7 +68,7 @@ class LearnData:
     def prepare_learn_data(self):
         X = []
         Y = []
-        for image, manual, mask in self.zip():
+        for image, manual, mask in self.zip_data():
             possible_points = LearnData.get_possible_points(mask)
             max_index = len(possible_points) - 1
             for i in range(0, PHOTO_SAMPLES):
@@ -163,26 +138,32 @@ class Network:
     def save(self, file_name):
         self.model.save(file_name)
 
-    def mark(self, img):
+    def mark(self, img, mask=None):
         reconstructed = np.zeros((img.shape[0], img.shape[1]))
         if img.max() > 1:
             img = img / 255
-        max_x = img.shape[0] - MASK_SIZE - 1
-        for x in range(0, max_x):
-            printProgressBar(x, max_x, prefix='Progress:', suffix='Complete', length=50)
+        if mask is not None:
+            points = LearnData.get_possible_points(mask)
+        else:
+            points = [[x, y]
+                      for x in range(0, img.shape[0] - MASK_SIZE - 1)
+                      for y in range(0, img.shape[1] - MASK_SIZE - 1)
+                      ]
+        total = len(points)
+        for i, p in enumerate(points):
+            printProgressBar(i, total, prefix='Progress:', suffix='Complete', length=100)
+            x, y = p
+            centerX = x + int(MASK_SIZE / 2)
+            centerY = y + int(MASK_SIZE / 2)
+            sample = img[x:(x + MASK_SIZE), y:(y + MASK_SIZE)]
+            sample = array(sample).reshape(MASK_SIZE, MASK_SIZE, 1)
+            prediction = self.predict(sample)
+            result = prediction.T[0]
 
-            for y in range(0, img.shape[1] - MASK_SIZE - 1):
-                centerX = x + int(MASK_SIZE / 2)
-                centerY = y + int(MASK_SIZE / 2)
-                sample = img[x:(x + MASK_SIZE), y:(y + MASK_SIZE)]
-                sample = array(sample).reshape(MASK_SIZE, MASK_SIZE, 1)
-                prediction = self.predict(sample)
-                result = prediction.T[0]
-
-                if result > 0.4:
-                    reconstructed[centerX][centerY] = 255
-                else:
-                    reconstructed[centerX][centerY] = 0
+            if result > 0.7:
+                reconstructed[centerX][centerY] = 255
+            else:
+                reconstructed[centerX][centerY] = 0
 
         return array(reconstructed)
 
@@ -209,14 +190,14 @@ def run_session(splittedSamples, splittedMasks):
 
     accuracy = get_accuracy(network, Xtest, Ytest) / len(Ytest)
     print("Accuracy: " + str(accuracy))
-    network.save("result/" + str(accuracy) + " " + CLASSIFIER_FILE_TFL)
+    network.save(MODEL_OUTPUT + "/" + str(accuracy) + " " + CLASSIFIER_FILE_TFL)
     print("Network trained and saved as %s!" % CLASSIFIER_FILE_TFL)
     tf.reset_default_graph()
     return accuracy
 
 
 if __name__ == '__main__':
-    learn_data = LearnData()
+    learn_data = LearnData(LEARNING_PATH)
     learn_data.load_all()
     X, Y = learn_data.prepare_learn_data()
 
@@ -234,6 +215,6 @@ if __name__ == '__main__':
         averageAcc += run_session(splittedSamples, splittedMasks)
     averageAcc = averageAcc / k
     print(averageAcc)
-    text_file = open("result/averageACC.txt", "w")
+    text_file = open(MODEL_OUTPUT + "/averageACC.txt", "w")
     text_file.write("Average accuracy: " + str(averageAcc))
     text_file.close()
