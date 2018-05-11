@@ -201,8 +201,8 @@ def get_accuracy(network: Network, Xtest, Ytest):
 def run_session(splittedSamples, splittedMasks):
     X = [item for sublist in splittedSamples for item in sublist]
     Y = [item for sublist in splittedMasks for item in sublist]
-    Xtest = splittedSamples.pop(i)
-    Ytest = splittedMasks.pop(i)
+    Xtest = list(splittedSamples).pop(i)
+    Ytest = list(splittedMasks).pop(i)
     network = Network()
     network.create_model(name='InputData' + str(i))
     network.train(X, Y, Xtest, Ytest)
