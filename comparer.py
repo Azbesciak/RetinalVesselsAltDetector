@@ -28,8 +28,8 @@ TN = 0
 FP = 0
 FN = 0
 result = np.zeros((reconstructed.shape[0], reconstructed.shape[1], 3), dtype=np.uint8)
-for x in range(0, reconstructed.shape[0] - MASK_SIZE - 1):
-    for y in range(0, reconstructed.shape[1] - MASK_SIZE - 1):
+for x in range(0, reconstructed.shape[0] - convolution_network.MASK_SIZE - 1):
+    for y in range(0, reconstructed.shape[1] - convolution_network.MASK_SIZE.MASK_SIZE - 1):
         if reconstructed[x][y] == 255 and mask[x][y] == 255:
             TP += 1
             result[x][y] = [127, 255, 0]

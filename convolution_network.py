@@ -18,12 +18,14 @@ from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
 from utils import printProgressBar
 
+KEEP_PROB = 0.5
+CONNECTIONS = 512
 CLASSIFIER_FILE_TFL = "eye-veins-classifier.tfl"
 
-max_height = 600
-MASK_SIZE = 21
+MAX_IMG_HEIGHT = 600
+MASK_SIZE = 25
 k = 10
-PHOTO_SAMPLES = 8000
+PHOTO_SAMPLES = 10000
 
 
 def chunkify(lst, n):
@@ -46,9 +48,9 @@ class Load:
     def load_image(file_name):
         img = imread(file_name)[:, :, 1]
         current_height = img.shape[1]
-        if current_height > max_height:
-            max_width = int(max_height / current_height * img.shape[0])
-            img = cv2.resize(img, dsize=(max_height, max_width), interpolation=cv2.INTER_CUBIC)
+        if current_height > MAX_IMG_HEIGHT:
+            max_width = int(MAX_IMG_HEIGHT / current_height * img.shape[0])
+            img = cv2.resize(img, dsize=(MAX_IMG_HEIGHT, max_width), interpolation=cv2.INTER_CUBIC)
         return img.astype(int)
 
     def load_all(self):
@@ -66,18 +68,23 @@ class LearnData:
         for l in [self.images, self.manual, self.masks]:
             l.load_all()
         self.masks.threshold()
+        self.manual.threshold()
 
     def zip(self):
         return zip(self.images.data, self.manual.data, self.masks.data)
 
+
     @staticmethod
     def get_possible_points(mask):
+        def to_corner(v):
+            return v - MASK_SIZE // 2 - 1
         indexes = np.where(mask > 0)
+        indexes = indexes
         all_x, all_y = indexes
-        indexes = [[all_x[i], all_y[i]] for i in range(0, len(all_x))]
-        max_x = mask.shape[0] - MASK_SIZE - 5
-        max_y = mask.shape[1] - MASK_SIZE - 5
-        return [i for i in indexes if 5 < i[0] < max_x and 5 < i[1] < max_y]
+        indexes = [[to_corner(all_x[i]), to_corner(all_y[i])] for i in range(0, len(all_x))]
+        max_x = mask.shape[0] - MASK_SIZE - 1
+        max_y = mask.shape[1] - MASK_SIZE - 1
+        return [i for i in indexes if 0 <= i[0] < max_x and 0 <= i[1] < max_y]
 
     @staticmethod
     def normalize(l):
@@ -135,8 +142,8 @@ class Network:
         network = conv_2d(network, 64, 3, activation='relu')
         network = conv_2d(network, 64, 3, activation='relu')
         network = max_pool_2d(network, 2)
-        network = fully_connected(network, 256, activation='relu')
-        network = dropout(network, 0.4)
+        network = fully_connected(network, CONNECTIONS, activation='relu')
+        network = dropout(network, KEEP_PROB)
         network = fully_connected(network, 2, activation='softmax')
         network = regression(network, optimizer='adam',
                              loss='categorical_crossentropy',
@@ -144,7 +151,7 @@ class Network:
         self.model = tflearn.DNN(network, tensorboard_verbose=0, checkpoint_path=ckpt)
 
     def train(self, X, Y, Xtest, Ytest):
-        self.model.fit(X, Y, n_epoch=8, shuffle=True, validation_set=(Xtest, Ytest),
+        self.model.fit(X, Y, n_epoch=4, shuffle=True, validation_set=(Xtest, Ytest),
                        show_metric=True, batch_size=64, snapshot_epoch=True)
 
     def load(self, path):
@@ -173,7 +180,7 @@ class Network:
                 result = prediction.T[0]
 
                 if result > 0.4:
-                    reconstructed[centerX][centerY] = 1
+                    reconstructed[centerX][centerY] = 255
                 else:
                     reconstructed[centerX][centerY] = 0
 
