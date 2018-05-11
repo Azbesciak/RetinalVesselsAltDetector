@@ -1,11 +1,13 @@
 # Results comparision
-## Meaning:\
-> Green - correct\
-> Red(or violet...) - incorrect\
-> Blue - ???\
-> Light - everything else but not vessel\
-> Dark - vessel\
-﻿## network
+# Meaning:\
+# Green - correct\
+# Red - incorrect\
+# Blue - ???\
+# Violet - both close to each other... green + red\
+# Light - everything else but not vessel\
+# Dark - vessel\
+﻿
+## network
 | Measure | Value |
 | --- | --- |
 | Accuracy |0.9594305342049714|
@@ -21,7 +23,8 @@
 | Error level | 0.08189516397190524 |
 | Sensitivity | 0.957618484369029 |
 | Specificity | 0.9985560697760603 |
-﻿## imgproc
+﻿
+## imgproc
 | Measure | Value |
 | --- | --- |
 | Accuracy |0.9070139083218585|
