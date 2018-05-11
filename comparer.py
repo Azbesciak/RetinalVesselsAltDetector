@@ -8,7 +8,7 @@ from utils import TEST_PATH, NETWORK_RESULT_DIR, IMG_PROC_RESULT_DIR
 VALIDATION_README_MD = TEST_PATH + "/validation/README.MD"
 
 
-def get_stat(label, learn_data: LearnData, to_compare: Load):
+def get_stat(label, learn_data : LearnData, to_compare : Load):
     TP = 0
     TN = 0
     FP = 0
@@ -18,6 +18,10 @@ def get_stat(label, learn_data: LearnData, to_compare: Load):
                                            to_compare.get_data(),
                                            learn_data.masks.get_data(),
                                            learn_data.original.images):
+        reconstructed[reconstructed > 10] = 255
+        reconstructed[reconstructed <= 10] = 0
+        if reconstructed.shape != manual.shape:
+            print("SHAPES ARE INVALID")
         points = LearnData.get_possible_points(mask)
         total_points_num += len(points)
         file_name = org.get_file_name()
@@ -25,16 +29,16 @@ def get_stat(label, learn_data: LearnData, to_compare: Load):
         for x, y in points:
             if reconstructed[x][y] == 255 and manual[x][y] == 255:
                 TP += 1
-                result[x][y] = [127, 255, 0]
+                result[x][y] = [46, 125, 50]
             elif reconstructed[x][y] == 255 and manual[x][y] == 0:
                 FP += 1
-                result[x][y] = [255, 0, 0]
+                result[x][y] = [239, 20, 87]
             elif reconstructed[x][y] == 0 and manual[x][y] == 255:
                 FN += 1
-                result[x][y] = [255, 0, 0]
+                result[x][y] = [239, 154, 154]
             elif reconstructed[x][y] == 0 and manual[x][y] == 0:
                 TN += 1
-                result[x][y] = [127, 255, 0]
+                result[x][y] = [174, 213, 129]
             else:
                 result[x][y] = [0, 0, 255]
         Load.save(TEST_PATH + "/validation/" + label + "/" + file_name, result)
@@ -56,19 +60,21 @@ def get_stat(label, learn_data: LearnData, to_compare: Load):
     N_TNP = TN / (TN + FP*RATIO)
     with codecs.open(VALIDATION_README_MD, "a", "utf-8-sig") as f:
         f.write("## " + label + "\n")
-        f.write("Accuracy: " + str(ACC) + "\n")
-        f.write("Error level: " + str(ERR) + "\n")
-        f.write("Sensitivity: " + str(TPR) + "\n")
-        f.write("Specificity: " + str(TNP) + "\n")
-        f.write("Positive Predictive Value: " + str(PPV) + "\n")
-        f.write("Negative Predictive Value: " + str(NPV) + "\n")
-        f.write("Medium Square Error:" + str(MSE) + "\n")
-        f.write("Positive to negative value in original :" + str(RATIO) + "\n")
-        f.write("Normalized results with ratio :" + str(RATIO) + "\n")
-        f.write("Accuracy: " + str(N_ACC) + "\n")
-        f.write("Error level: " + str(N_ERR) + "\n")
-        f.write("Sensitivity: " + str(N_TPR) + "\n")
-        f.write("Specificity: " + str(N_TNP) + "\n")
+        f.write("| Measure | Value |\n")
+        f.write("| --- | --- |\n")
+        f.write("| Accuracy |" + str(ACC) + "|\n")
+        f.write("| Error level |" + str(ERR) + "|\n") 
+        f.write("| Sensitivity | " + str(TPR) + " |\n")
+        f.write("| Specificity | " + str(TNP) + " |\n")
+        f.write("| Positive Predictive Value | " + str(PPV) + " |\n")
+        f.write("| Negative Predictive Value | " + str(NPV) + " |\n")
+        f.write("| Medium Square Error:" + str(MSE) + "\n")
+        f.write("| Positive to negative value in original :" + str(RATIO) + " |\n")
+        f.write("| Normalized results with ratio | " + str(RATIO) + " |\n")
+        f.write("| Accuracy | " + str(N_ACC) + " |\n")
+        f.write("| Error level | " + str(N_ERR) + " |\n")
+        f.write("| Sensitivity | " + str(N_TPR) + " |\n")
+        f.write("| Specificity | " + str(N_TNP) + " |\n")
 
 
 if __name__ == '__main__':
@@ -80,6 +86,12 @@ if __name__ == '__main__':
     image_proc = Load(IMG_PROC_RESULT_DIR, TEST_PATH)
     image_proc.load_all()
     with open(VALIDATION_README_MD, 'w') as f:
-        f.write("# Results comparision")
+        f.write("# Results comparision\n")
+        f.write("# Meaning:\\\n")
+        f.write("# Green - correct\\\n")
+        f.write("# Red (or violet...) - incorrect\\\n")
+        f.write("# Blue - ???\\\n")
+        f.write("# Light - everything else but not vessel\\\n")
+        f.write("# Dark - vessel\\\n")
     get_stat(NETWORK_RESULT_DIR, learn_data, neural_res)
     get_stat(IMG_PROC_RESULT_DIR, learn_data, image_proc)
