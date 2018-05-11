@@ -181,7 +181,7 @@ def get_accuracy(network: Network, Xtest, Ytest):
     return accuracy
 
 
-def run_session(splittedSamples, splittedMasks):
+def run_session(splittedSamples, splittedMasks, i):
     X = [item for sublist in splittedSamples for item in sublist]
     Y = [item for sublist in splittedMasks for item in sublist]
     Xtest = list(splittedSamples).pop(i)
@@ -213,8 +213,8 @@ if __name__ == '__main__':
     timeStamp = datetime.datetime.now().time()
 
     averageAcc = 0
-    # for i in range(0, k):
-    averageAcc += run_session(splittedSamples, splittedMasks)
+    for i in range(0, 0):
+        averageAcc += run_session(splittedSamples, splittedMasks, i)
     averageAcc = averageAcc / k
     print(averageAcc)
     text_file = open(MODEL_OUTPUT + "/averageACC.txt", "w")
