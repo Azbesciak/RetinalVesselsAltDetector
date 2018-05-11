@@ -13,12 +13,12 @@ def draw_image(img):
     plt.imshow(img, cmap=plt.cm.Greys_r)
 
 
-def get_img():
+def load_image():
     return imread(src_dir + img_name)
 
 
 if __name__ == '__main__':
-    img = get_img()
+    img = load_image()
     res = process(img)
     draw_image(res)
     plt.show()
