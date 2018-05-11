@@ -13,7 +13,7 @@ if __name__ == '__main__':
     network.load(model_path + CLASSIFIER_FILE_TFL)
     data = LearnData(TEST_PATH)
     data.load_all()
-    for img, mask, org in zip(data.manual.images, data.masks.images, data.original.images):
-        reconstructed = network.mark(img.image, mask.image)
+    for mask, org in zip(data.masks.images, data.original.images):
+        reconstructed = network.mark(org.image, mask.image)
         Load.save(TEST_PATH + "/network/" + org.get_file_name(), reconstructed)
         exit(0)

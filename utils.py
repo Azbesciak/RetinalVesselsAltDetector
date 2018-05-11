@@ -2,8 +2,11 @@ import os
 
 import cv2
 import matplotlib.pyplot as plt
+import numpy as np
 
-MAX_IMG_HEIGHT = 600
+PADDING = 25 // 2 + 1
+
+MAX_IMG_WIDTH = 666
 TEST_PATH = "test"
 LEARNING_PATH = "all"
 
@@ -60,10 +63,12 @@ class Load:
     @staticmethod
     def load_image(file_name):
         img = cv2.imread(file_name)[:, :, 1]
-        current_height = img.shape[1]
-        if current_height > MAX_IMG_HEIGHT:
-            max_width = int(MAX_IMG_HEIGHT / current_height * img.shape[0])
-            img = cv2.resize(img, dsize=(MAX_IMG_HEIGHT, max_width), interpolation=cv2.INTER_CUBIC)
+        current_width = img.shape[1]
+        if current_width > MAX_IMG_WIDTH:
+            max_height = int(MAX_IMG_WIDTH / current_width * img.shape[0])
+            img = cv2.resize(img, dsize=(MAX_IMG_WIDTH, max_height), interpolation=cv2.INTER_CUBIC)
+
+        img = np.pad(img, ((PADDING, PADDING), (PADDING, PADDING)), 'constant', constant_values=0)
         return Img(file_name, img)
 
     def load_all(self):

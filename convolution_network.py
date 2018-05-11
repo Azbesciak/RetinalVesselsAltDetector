@@ -19,15 +19,17 @@ from tflearn.layers.estimator import regression
 
 from utils import Load, printProgressBar, LEARNING_PATH
 
+N_EPOCH = 10
+
 MODEL_OUTPUT = "result"
 
-KEEP_PROB = 0.5
-CONNECTIONS = 512
+KEEP_PROB = 0.6
+CONNECTIONS = 1024
 CLASSIFIER_FILE_TFL = "eye-veins-classifier.tfl"
 
 MASK_SIZE = 25
-k = 10
-PHOTO_SAMPLES = 10000
+k = 5
+PHOTO_SAMPLES = 45000
 
 
 def chunkify(lst, n):
@@ -126,7 +128,7 @@ class Network:
         self.model = tflearn.DNN(network, tensorboard_verbose=0, checkpoint_path=ckpt)
 
     def train(self, X, Y, Xtest, Ytest):
-        self.model.fit(X, Y, n_epoch=4, shuffle=True, validation_set=(Xtest, Ytest),
+        self.model.fit(X, Y, n_epoch=N_EPOCH, shuffle=True, validation_set=(Xtest, Ytest),
                        show_metric=True, batch_size=64, snapshot_epoch=True)
 
     def load(self, path):
@@ -160,7 +162,7 @@ class Network:
             prediction = self.predict(sample)
             result = prediction.T[0]
 
-            if result > 0.7:
+            if result > KEEP_PROB:
                 reconstructed[centerX][centerY] = 255
             else:
                 reconstructed[centerX][centerY] = 0
@@ -211,8 +213,8 @@ if __name__ == '__main__':
     timeStamp = datetime.datetime.now().time()
 
     averageAcc = 0
-    for i in range(0, k):
-        averageAcc += run_session(splittedSamples, splittedMasks)
+    # for i in range(0, k):
+    averageAcc += run_session(splittedSamples, splittedMasks)
     averageAcc = averageAcc / k
     print(averageAcc)
     text_file = open(MODEL_OUTPUT + "/averageACC.txt", "w")
