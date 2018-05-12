@@ -44,9 +44,10 @@ def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=
 
 
 class Img:
-    def __init__(self, name, image):
+    def __init__(self, name, gray, original):
         self.name = name
-        self.image = image
+        self.image = gray
+        self.original = original
 
     def get_file_name(self):
         return os.path.basename(self.name)
@@ -74,21 +75,23 @@ class Load:
 
     @staticmethod
     def load_image(file_name):
-        img = cv2.imread(file_name)[:, :, 1]
+        img = cv2.imread(file_name)
         current_width = img.shape[1]
         if current_width > MAX_IMG_WIDTH:
             max_height = int(MAX_IMG_WIDTH / current_width * img.shape[0])
             img = cv2.resize(img, dsize=(MAX_IMG_WIDTH, max_height), interpolation=cv2.INTER_CUBIC)
-
-        img = np.pad(img, ((PADDING, PADDING), (PADDING, PADDING)), 'constant', constant_values=0)
-        return Img(file_name, img)
+        original = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        grey = np.pad(img[:, :, 1], ((PADDING, PADDING), (PADDING, PADDING)), 'constant', constant_values=0)
+        return Img(file_name, grey, original)
 
     def load_all(self):
         self.images = [Load.load_image(self.root_dir + "/" + self.path + "/" + p)
                        for p in os.listdir(self.root_dir + "/" + self.path)]
 
 
-def draw_image(img):
-    plt.subplot(1, 1, 1)
+def draw_image(img, grid_r=1, grid_h=1, pos=1, show=True):
+    plt.subplot(grid_r, grid_h, pos)
+    plt.axis('off')
     plt.imshow(img, cmap=plt.cm.Greys_r)
-    plt.show()
+    if show:
+        plt.show()

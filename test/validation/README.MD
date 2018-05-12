@@ -7,36 +7,34 @@
 > Light - everything else but not vessel\
 > Dark - vessel\
 
-## network
+# network
 | Measure | Value |
 | --- | --- |
-| Accuracy |0.9594305342049714|
-| Error level |0.04056946579502864|
-| Sensitivity | 0.700751774415165 |
-| Specificity | 0.9862393330228344 |
-| Positive Predictive Value | 0.8407049447982234 |
-| Negative Predictive Value | 0.9695126735547653 |
-| Medium Square Error | 0.0939053139429622
-| Positive to negative value in original | 0.10363741823892668 |
-| Normalized results with ratio | 0.10363741823892668 |
-| Accuracy | 0.8434955537189996 |
-| Error level | 0.08189516397190524 |
-| Sensitivity | 0.957618484369029 |
-| Specificity | 0.9985560697760603 |
+| Accuracy |0.9575329175670895|
+| Error level |0.04246708243291054|
+| Sensitivity | 0.6955452124853891 |
+| Specificity | 0.9857975833538954 |
+| Positive Predictive Value | 0.8408543677433836 |
+| Negative Predictive Value | 0.9677549249156779 |
+| Medium Square Error | 0.09737962071500453
+| Positive to negative value in original | 0.10788546652596424 |
+| Accuracy(Norm) | 0.8406713979196423 |
+| Error level(Norm) | 0.08224485593749778 |
+| Sensitivity(Norm) | 0.9549057771491655 |
+| Specificity(Norm) | 0.9984481028343384 |
 
-## imgproc
+﻿## imgproc
 | Measure | Value |
 | --- | --- |
-| Accuracy |0.9070139083218585|
-| Error level |0.09298609167814154|
-| Sensitivity | 0.7157610075002406 |
-| Specificity | 0.9268348651937164 |
-| Positive Predictive Value | 0.5034425659350636 |
-| Negative Predictive Value | 0.9691958366292404 |
-| Medium Square Error | 0.0939053139429622
-| Positive to negative value in original | 0.10363741823892668 |
-| Normalized results with ratio | 0.10363741823892668 |
-| Accuracy | 0.8212979363469786 |
-| Error level | 0.3677149911588347 |
-| Sensitivity | 0.9604709445963804 |
-| Specificity | 0.991885163122248 |
+| Accuracy |0.9038034105323887|
+| Error level |0.09619658946761128|
+| Sensitivity | 0.709293150083762 |
+| Specificity | 0.9247882407249757 |
+| Positive Predictive Value | 0.5043189448513197 |
+| Negative Predictive Value | 0.9671986592263888 |
+| Medium Square Error | 0.09737962071500453
+| Positive to negative value in original | 0.10788546652596424 |
+| Accuracy(Norm) | 0.8170406954043689 |
+| Error level(Norm) | 0.3642537704708536 |
+| Sensitivity(Norm) | 0.9576550572712212 |
+| Specificity(Norm) | 0.9913021395393491 |

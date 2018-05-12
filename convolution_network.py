@@ -103,8 +103,9 @@ class LearnData:
 
 
 class Network:
-    def __init__(self):
+    def __init__(self, progress_length=100):
         self.model = None
+        self.progress_length = progress_length
 
     def create_model(self, name="InputData"):
         img_prep = ImagePreprocessing()
@@ -139,7 +140,7 @@ class Network:
     def save(self, file_name):
         self.model.save(file_name)
 
-    def mark(self, img, mask, img_name):
+    def mark(self, img, mask=None, img_name="Img"):
         reconstructed = np.zeros((img.shape[0], img.shape[1]))
         if img.max() > 1:
             img = img / 255
@@ -151,7 +152,7 @@ class Network:
                       for y in range(0, img.shape[1] - MASK_SIZE - 1)
                       ]
         total = len(points)
-        printProgressBar(0, total, prefix='Progress (' + img_name + '):', suffix='Complete', length=100)
+        printProgressBar(0, total, prefix='Progress (' + img_name + '):', suffix='Complete', length=self.progress_length)
         for i, p in enumerate(points):
             x, y = p
             centerX = x + int(MASK_SIZE / 2)
@@ -165,7 +166,7 @@ class Network:
                 reconstructed[centerX][centerY] = 255
             else:
                 reconstructed[centerX][centerY] = 0
-            printProgressBar(i+1, total, prefix='Progress (' + img_name + '):', suffix='Complete', length=100)
+            printProgressBar(i+1, total, prefix='Progress (' + img_name + '):', suffix='Complete', length=self.progress_length)
         return array(reconstructed)
 
 

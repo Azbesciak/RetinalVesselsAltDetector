@@ -6,10 +6,16 @@ from utils import Load, TEST_PATH, NETWORK_RESULT_DIR
 
 model_path = "model/"
 
-if __name__ == '__main__':
-    network = Network()
+
+def create_network(progress_length=100):
+    network = Network(progress_length)
     network.create_model()
     network.load(model_path + CLASSIFIER_FILE_TFL)
+    return network
+
+
+if __name__ == '__main__':
+    network = create_network()
     data = LearnData(TEST_PATH)
     data.load_all()
     for mask, org in zip(data.masks.images, data.original.images):
