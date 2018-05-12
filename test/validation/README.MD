@@ -23,7 +23,7 @@
 | Sensitivity(Norm) | 0.9549057771491655 |
 | Specificity(Norm) | 0.9984481028343384 |
 
-﻿## imgproc
+## imgproc
 | Measure | Value |
 | --- | --- |
 | Accuracy |0.9038034105323887|
