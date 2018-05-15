@@ -71,7 +71,7 @@ class Load:
     def save(path, img):
         dims = img.shape
         img = img[PADDING:dims[0]-PADDING, PADDING:dims[1]-PADDING]
-        cv2.imwrite(path, img)
+        cv2.imwrite(path, cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
 
     @staticmethod
     def load_image(file_name):
